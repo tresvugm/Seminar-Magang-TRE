@@ -680,7 +680,7 @@
         }
 
         function normalizeDate(rawStr) {
-            if (!rawStr) return new Date().toISOString().slice(0, 16);
+            if (!rawStr) return new Date().toISOString();
             if (rawStr.includes('T')) return rawStr;
 
             // Fix typo in year from Google Sheets (e.g., "20266" -> "2026")
@@ -688,7 +688,7 @@
 
             const parsed = new Date(rawStr);
             if (!isNaN(parsed.getTime())) {
-                return parsed.toISOString().slice(0, 16);
+                return parsed.toISOString();
             }
 
             const parts = rawStr.split(/[\/\- ]/);
@@ -699,11 +699,11 @@
                 if (y < 100) y += 2000;
                 const dObj = new Date(y, m, d, 9, 0);
                 if (!isNaN(dObj.getTime())) {
-                    return dObj.toISOString().slice(0, 16);
+                    return dObj.toISOString();
                 }
             }
 
-            return new Date().toISOString().slice(0, 16);
+            return new Date().toISOString();
         }
 
 
