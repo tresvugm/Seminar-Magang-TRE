@@ -314,6 +314,7 @@
                             <th class="text-center" width="5%">No.</th>
                             <th>Nama Mahasiswa</th>
                             <th>Dosen Pembimbing</th>
+                            <th>Perusahaan Tempat Magang</th>
                             <th>Tanggal Pelaksanaan</th>
                             <th>Ruangan</th>
                             <th class="text-center" width="18%">Keterangan</th>
@@ -349,12 +350,13 @@
          * Aturan Kolom Spreadsheet:
          * Kolom 1: Nama mahasiswa magang
          * Kolom 2: Dosen pembimbing
-         * Kolom 3: Tanggal Pengajuan
-         * Kolom 4: Tanggal Pelaksanaan
-         * Kolom 5: Waktu Pelaksanaan
-         * Kolom 6: Status ("Disetujui" tampil, "Ditolak" disembunyikan)
-         * Kolom 7: Ruangan (Diisi Akademik)
-         * Kolom 8: Catatan
+         * Kolom 3: Nama Perusahaan
+         * Kolom 4: Tanggal Pengajuan
+         * Kolom 5: Tanggal Pelaksanaan
+         * Kolom 6: Waktu Pelaksanaan
+         * Kolom 7: Status ("Disetujui" tampil, "Ditolak" disembunyikan)
+         * Kolom 8: Ruangan (Diisi Akademik)
+         * Kolom 9: Catatan
          * 
          * Logika & Fitur:
          * - Diurutkan dari yang terbaru sampai terlama (newest to oldest)
@@ -503,6 +505,7 @@
                     <td></td>
                     <td class="fw-semibold text-dark">${escapeHtml(item.nama)}</td>
                     <td class="text-secondary"><i class="bi bi-person me-1"></i>${escapeHtml(item.pembimbing)}</td>
+                    <td class="text-secondary"><i class="bi bi-building me-1"></i>${escapeHtml(item.perusahaan || '-')}</td>
                     <td data-order="${item.tanggalSeminar}">
                         ${tgl.display}
                         <div class="text-muted small mt-1"><i class="bi bi-clock me-1 text-primary"></i>${escapeHtml(item.waktuPelaksanaan || '-')}</div>
@@ -535,8 +538,8 @@
                     }
                 },
                 pageLength: 15,
-                // ATURAN 3: Urutkan default berdasarkan Kolom Tanggal Seminar (Index 3) dari TERBARU ke TERLAMA (desc)
-                order: [[3, 'desc']],
+                // ATURAN 3: Urutkan default berdasarkan Kolom Tanggal Seminar (Index 4) dari TERBARU ke TERLAMA (desc)
+                order: [[4, 'desc']],
                 columnDefs: [
                     {
                         targets: 0, // Kolom Nomor (Index 0)
@@ -545,7 +548,7 @@
                         className: 'text-center fw-semibold text-muted'
                     },
                     {
-                        targets: 5, // Kolom Keterangan (Kembali ke Index 5)
+                        targets: 6, // Kolom Keterangan (Index 6)
                         className: 'text-center'
                     }
                 ]
@@ -643,21 +646,24 @@
                 const cols = rows[i];
                 if (!cols || cols.length < 2) continue;
 
-                // Pemetaan Kolom:
+                // Pemetaan Kolom Baru:
                 // Col 0: Nama mahasiswa magang
                 // Col 1: Dosen pembimbing
-                // Col 2: Tanggal Pengajuan
-                // Col 3: Tanggal Pelaksanaan
-                // Col 4: Waktu Pelaksanaan
-                // Col 5: Status ("Disetujui" / "Ditolak")
-                // Col 6: Ruangan
-                // Col 7: Catatan
+                // Col 2: Nama Perusahaan
+                // Col 3: Tanggal Pengajuan
+                // Col 4: Tanggal Pelaksanaan
+                // Col 5: Waktu Pelaksanaan
+                // Col 6: Status ("Disetujui" / "Ditolak")
+                // Col 7: Ruangan (Diisi Akademik)
+                // Col 8: Catatan
                 const nama = (cols[0] || '').trim();
                 const pembimbing = (cols[1] || '').trim();
-                const rawDate = (cols[3] || '').trim();
-                const waktuPelaksanaan = (cols[4] || '').trim();
-                const rawStatus = (cols[5] || 'Disetujui').trim();
-                const ruangan = (cols[6] || 'Ruangan Belum Diisi').trim();
+                const perusahaan = (cols[2] || '').trim();
+                const tanggalPengajuan = (cols[3] || '').trim();
+                const rawDate = (cols[4] || '').trim();
+                const waktuPelaksanaan = (cols[5] || '').trim();
+                const rawStatus = (cols[6] || 'Disetujui').trim();
+                const ruangan = (cols[7] || 'Ruangan Belum Diisi').trim();
 
                 if (!nama) continue;
 
@@ -667,7 +673,8 @@
                     id: 'sheet-' + Date.now() + '-' + i,
                     nama,
                     pembimbing,
-                    tanggalPengajuan: cols[2] || '',
+                    perusahaan,
+                    tanggalPengajuan: tanggalPengajuan,
                     tanggalSeminar: parsedDate,
                     waktuPelaksanaan: waktuPelaksanaan,
                     status: rawStatus.toLowerCase().includes('tolak') ? 'Ditolak' : 'Disetujui',
