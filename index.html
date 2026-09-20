@@ -446,13 +446,24 @@
             };
         }
 
-        // Logika Status: Selesai jika waktu sekarang sudah melewati hari H (H+1)
-        function isFinished(dateString) {
-            const seminarDate = new Date(dateString);
-            // Atur batas selesai ke akhir hari H (jam 23:59:59)
-            seminarDate.setHours(23, 59, 59, 999);
+        // Ekstrak jam dari string waktu
+        function getStartTime(waktuStr) {
+            const timeMatch = (waktuStr || '').match(/(\d{1,2})[:.](\d{2})/);
+            if (timeMatch) {
+                return { h: parseInt(timeMatch[1], 10), m: parseInt(timeMatch[2], 10) };
+            }
+            return { h: 23, m: 59 };
+        }
+
+        // Logika Status: Selesai jika waktu sekarang sudah melewati atau sama dengan waktu mulai
+        function isFinished(item) {
+            const seminarDate = new Date(item.tanggalSeminar);
+            const startTime = getStartTime(item.waktuPelaksanaan);
+            // Set jam sesuai dengan jadwal spesifik
+            seminarDate.setHours(startTime.h, startTime.m, 0, 0);
+            
             const now = Date.now();
-            return seminarDate.getTime() < now;
+            return seminarDate.getTime() <= now;
         }
 
         // Membangun Tabel dengan DataTables
@@ -470,7 +481,7 @@
 
             // ATURAN 2: Saring berdasarkan filter tab aktif
             const displayList = approvedList.filter(item => {
-                const finished = isFinished(item.tanggalSeminar);
+                const finished = isFinished(item);
                 if (currentFilterStatus === 'available' && finished) return false;
                 if (currentFilterStatus === 'finished' && !finished) return false;
                 return true;
@@ -478,7 +489,7 @@
 
             // Render baris ke tabel
             displayList.forEach((item) => {
-                const finished = isFinished(item.tanggalSeminar);
+                const finished = isFinished(item);
                 const tgl = formatTanggalIndo(item.tanggalSeminar);
                 
                 const tr = document.createElement('tr');
